@@ -6,10 +6,13 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	fc "triple-s/internal"
 )
 
-var templates = template.Must(template.ParseFiles("edit.html", "view.html"))
-var validPath = regexp.MustCompile("^/(edit|save|view)/([a-zA-Z0-9]+)$")
+var (
+	templates = template.Must(template.ParseFiles("edit.html", "view.html"))
+	validPath = regexp.MustCompile("^/(edit|save|view)/([a-zA-Z0-9]+)$")
+)
 
 type Page struct {
 	Title string
@@ -77,8 +80,10 @@ func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
 }
 
 func main() {
-	http.HandleFunc("/view/", makeHandler(viewHandler))
-	http.HandleFunc("/edit/", makeHandler(editHandler))
-	http.HandleFunc("/save/", makeHandler(saveHandler))
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	fc.Parse()
+	mux := http.NewServeMux()
+	mux.HandleFunc("/view/", makeHandler(viewHandler))
+	mux.HandleFunc("/edit/", makeHandler(editHandler))
+	mux.HandleFunc("/save/", makeHandler(saveHandler))
+	log.Fatal(http.ListenAndServe(":8080", mux))
 }
