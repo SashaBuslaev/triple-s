@@ -18,8 +18,8 @@ func Parse() {
 		PrintHelp()
 		os.Exit(0)
 	}
-	fmt.Println(*PortNum)
-	fmt.Println(*UserDir)
+
+	LandS()
 }
 
 func PrintHelp() {
