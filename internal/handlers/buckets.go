@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 	"regexp"
+	"strings"
 	"triple-s/internal/config"
 )
 
@@ -18,18 +20,24 @@ type Bucket struct {
 
 func CreateBucket(w http.ResponseWriter, r *http.Request) {
 	bucketName := r.URL.Path[len("/"):]
+
 	if !isValidBucketName(bucketName) {
 		http.Error(w, "Invalid bucket name", http.StatusBadRequest)
-	} else if !isUniqueBucketName(bucketName) {
-		http.Error(w, "Bucket exists", http.StatusConflict)
-	} else {
-		err := os.Mkdir(*config.UserDir+"/"+bucketName, 0777)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		w.WriteHeader(http.StatusOK)
+		return
 	}
+	if !isUniqueBucketName(bucketName) {
+		http.Error(w, "Bucket exists", http.StatusConflict)
+		return
+	}
+
+	err := os.Mkdir(*config.UserDir+"/"+bucketName, 0777)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	fmt.Println("Bucket created successfully:", bucketName)
+	w.WriteHeader(http.StatusOK)
+
 }
 
 func ListBuckets(w http.ResponseWriter, r *http.Request) {
@@ -49,8 +57,8 @@ func isValidBucketName(name string) bool {
 		if ipCheck.MatchString(name) {
 			return false
 		}
-		consHyphenDots, _ := regexp.Compile(`(?!.*[.]{2})(?!.*-{2})`)
-		if !consHyphenDots.MatchString(name) {
+
+		if strings.Contains(name, "..") || strings.Contains(name, "--") {
 			return false
 		}
 		if name[0] == '.' || name[0] == '-' || name[len(name)-1] == '.' || name[len(name)-1] == '-' {
