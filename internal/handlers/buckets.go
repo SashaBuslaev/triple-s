@@ -41,6 +41,7 @@ func CreateBucket(w http.ResponseWriter, r *http.Request) {
 }
 
 func ListBuckets(w http.ResponseWriter, r *http.Request) {
+
 }
 
 func DeleteBucket(w http.ResponseWriter, r *http.Request) {

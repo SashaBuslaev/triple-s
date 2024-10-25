@@ -11,6 +11,7 @@ import (
 
 func StartServer() {
 	config.Parse()
+	config.CreateDirAndCSV()
 	http.HandleFunc("/", handlers.ListBuckets)
 	http.HandleFunc("/{BucketName}", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
