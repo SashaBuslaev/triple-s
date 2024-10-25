@@ -1,4 +1,4 @@
-package internal
+package config
 
 import (
 	"flag"
@@ -19,7 +19,6 @@ func Parse() {
 		os.Exit(0)
 	}
 
-	LandS()
 }
 
 func PrintHelp() {
