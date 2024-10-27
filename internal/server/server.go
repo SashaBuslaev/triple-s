@@ -7,12 +7,21 @@ import (
 	"strconv"
 	"triple-s/internal/config"
 	"triple-s/internal/handlers"
+	u "triple-s/internal/utils"
 )
 
 func StartServer() {
 	config.Parse()
-	config.CreateDirAndCSV()
-	http.HandleFunc("/", handlers.ListBuckets)
+	u.CreateDirAndCSV()
+
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case "GET":
+			handlers.ListBuckets(w, r)
+		default:
+			w.WriteHeader(http.StatusMethodNotAllowed)
+		}
+	})
 	http.HandleFunc("/{BucketName}", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "PUT":
