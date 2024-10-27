@@ -21,7 +21,7 @@ func CreateBucket(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := os.Mkdir(*config.UserDir+"/"+bucketName, 0777)
+	err := os.Mkdir(*config.UserDir+"/"+bucketName, 0o777)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -32,7 +32,10 @@ func CreateBucket(w http.ResponseWriter, r *http.Request) {
 
 	bucket := u.GetXMLBucket(bucketName, u.GetTime(), u.GetTime(), "active")
 	w.Header().Set("Content-Type", "application/xml")
-	w.Write([]byte(xml.Header))
+	_, err = w.Write([]byte(xml.Header))
+	if err != nil {
+		return
+	}
 	_, err = w.Write(bucket)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -56,10 +59,9 @@ func ListBuckets(w http.ResponseWriter, r *http.Request) {
 	}
 	_, err = w.Write(xmlData)
 	if err != nil {
-		return
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 
 func DeleteBucket(w http.ResponseWriter, r *http.Request) {
-
 }

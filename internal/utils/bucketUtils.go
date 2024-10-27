@@ -75,7 +75,7 @@ func GetXMLBucket(bucketName string, creationTime string, modTime string, status
 		LastModified: modTime,
 		Status:       status,
 	}
-	xmlData, err := xml.MarshalIndent(bucket, "", "	") //to make the text version prettier
+	xmlData, err := xml.MarshalIndent(bucket, "", "	") // to make the text version prettier
 	if err != nil {
 		log.Fatal(err)
 	}

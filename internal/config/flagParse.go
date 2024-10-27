@@ -12,7 +12,7 @@ var (
 )
 
 func Parse() {
-	var help = flag.Bool("help", false, "Show help")
+	help := flag.Bool("help", false, "Show help")
 	flag.Parse()
 	if *help {
 		PrintHelp()

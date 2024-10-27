@@ -17,7 +17,7 @@ func ReadCsv(bucketName string) []config.Bucket {
 	var buckets []config.Bucket
 
 	csvReader := csv.NewReader(file)
-	_, err = csvReader.Read() //skip first line
+	_, err = csvReader.Read() // skip first line
 	if err != nil {
 		return nil
 	}

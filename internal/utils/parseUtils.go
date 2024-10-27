@@ -9,7 +9,7 @@ import (
 
 func CreateDirAndCSV() {
 	if _, err := os.Stat(*config.UserDir); os.IsNotExist(err) {
-		err := os.Mkdir(*config.UserDir, 0777)
+		err := os.Mkdir(*config.UserDir, 0o777)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
