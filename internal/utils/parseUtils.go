@@ -31,7 +31,5 @@ func CreateDirAndCSV() {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-	} else {
-		fmt.Println("Objects.csv already exists")
 	}
 }
