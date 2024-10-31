@@ -26,42 +26,56 @@ func CreateBucket(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	u.UpdateCsvBucket(bucketName)
+	u.UpdateCsvBucket(bucketName, "add", "")
 	fmt.Println("Bucket created successfully:", bucketName)
-	w.WriteHeader(http.StatusOK)
 
 	bucket := u.GetXMLBucket(bucketName, u.GetTime(), u.GetTime(), "active")
 	w.Header().Set("Content-Type", "application/xml")
 	_, err = w.Write([]byte(xml.Header))
-	if err != nil {
-		return
-	}
+	u.CallErr(w, err)
 	_, err = w.Write(bucket)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	u.CallErr(w, err)
+	w.WriteHeader(http.StatusOK)
 }
 
 func ListBuckets(w http.ResponseWriter, r *http.Request) {
-	records := u.ReadCsv(*config.UserDir + "/buckets.csv")
+	records := u.ReadCsvBucket(*config.UserDir + "/buckets.csv")
 	w.Header().Set("Content-Type", "application/xml")
-	w.WriteHeader(http.StatusOK)
 	_, err := w.Write([]byte(xml.Header))
-	if err != nil {
-		return
-	}
+	u.CallErr(w, err)
 	buckets := config.BucketList{
 		Buckets: records,
 	}
 	xmlData, err := xml.MarshalIndent(buckets, "", "\t")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	u.CallErr(w, err)
 	_, err = w.Write(xmlData)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	u.CallErr(w, err)
+	w.WriteHeader(http.StatusOK)
 }
 
 func DeleteBucket(w http.ResponseWriter, r *http.Request) {
+	bucketDelete := r.URL.Path[len("/"):]
+	records := u.ReadCsvBucket(*config.UserDir + "/buckets.csv")
+	w.Header().Set("Content-Type", "application/xml")
+	bucketIs := false
+	if !u.IsValidBucketName(bucketDelete) {
+		http.Error(w, "Invalid bucket name", http.StatusBadRequest)
+	}
+	for _, bucketName := range records {
+		if bucketName.Name == bucketDelete {
+			bucketIs = true
+			break
+		}
+	}
+	if !bucketIs {
+		http.Error(w, "Bucket does not exist", http.StatusNotFound)
+	}
+	dir, _ := os.ReadDir(bucketDelete)
+	if len(dir) != 1 {
+		http.Error(w, "Bucket is not empty", http.)
+	}
+	err := os.RemoveAll(*config.UserDir + "/" + bucketDelete)
+	u.CallErr(w, err)
+	u.UpdateCsvBucket(bucketDelete, "del", bucketDelete)
+	w.WriteHeader(http.StatusNoContent)
 }
