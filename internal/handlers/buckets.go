@@ -71,7 +71,8 @@ func DeleteBucket(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Bucket does not exist", http.StatusNotFound)
 	}
 	dir, _ := os.ReadDir(bucketDelete)
-	if len(dir) != 1 {
+	if len(dir) != 0 {
+		fmt.Println(dir)
 		http.Error(w, "Bucket is not empty", http.StatusConflict)
 	}
 	err := os.RemoveAll(*config.UserDir + "/" + bucketDelete)
