@@ -18,6 +18,10 @@ func Parse() {
 		PrintHelp()
 		os.Exit(0)
 	}
+	if *UserDir == "internal" {
+		fmt.Println("User dir is internal")
+		os.Exit(1)
+	}
 }
 
 func PrintHelp() {

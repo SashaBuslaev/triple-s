@@ -28,6 +28,8 @@ func StartServer() {
 			handlers.CreateBucket(w, r)
 		case "DELETE":
 			handlers.DeleteBucket(w, r)
+		default:
+			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
 	})
 

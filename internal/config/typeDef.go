@@ -13,3 +13,9 @@ type BucketList struct {
 	XMLName xml.Name `xml:"Buckets"`
 	Buckets []Bucket `xml:"Bucket"`
 }
+
+type ErrorResponse struct {
+	XMLName xml.Name `xml:"ErrorResponse"`
+	Code    int      `xml:"Code"`
+	Message string   `xml:"Message"`
+}

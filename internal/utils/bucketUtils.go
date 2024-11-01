@@ -21,7 +21,7 @@ func IsValidBucketName(name string) bool {
 	if name == "internal" {
 		return false
 	}
-	r, _ := regexp.Compile("^[a-z0-9A-Z-.]+$")
+	r, _ := regexp.Compile("^[a-z0-9-.]+$")
 	if r.MatchString(name) {
 		ipCheck, _ := regexp.Compile(`^(\d{1,3}\.){3}\d{1,3}$`)
 		if ipCheck.MatchString(name) {
@@ -86,29 +86,32 @@ func UpdateCsvBucket(bucketName string, addOrDel string, delBucket string) {
 		}
 		defer file.Close()
 		writer := csv.NewWriter(file)
+		defer writer.Flush()
 		time := GetTime()
 		newRecord := []string{bucketName, time, time, "Active"}
 		err = writer.Write(newRecord)
 		if err != nil {
 			log.Fatal(err)
 		}
-		writer.Flush()
 	} else if addOrDel == "del" {
-		file, err := os.OpenFile(*config.UserDir+"/buckets.csv", os.O_RDWR, os.ModePerm)
+		file, err := os.OpenFile(*config.UserDir+"/buckets.csv", os.O_RDONLY, os.ModePerm)
+		defer file.Close()
 		if err != nil {
 			log.Fatal(err)
 		}
 		csvReader := csv.NewReader(file)
-		csvWriter := csv.NewWriter(file)
 		records, err := csvReader.ReadAll()
+		file, err = os.OpenFile(*config.UserDir+"/buckets.csv", os.O_WRONLY|os.O_TRUNC, os.ModePerm)
+		defer file.Close()
+		csvWriter := csv.NewWriter(file)
+		defer csvWriter.Flush()
 		csvWriter.Write(records[0])
+		records = records[1:]
 		for _, record := range records {
 			if record[0] != delBucket {
 				csvWriter.Write(record)
 			}
 		}
-		csvWriter.Flush()
-		defer file.Close()
 	}
 }
 
