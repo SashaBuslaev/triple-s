@@ -52,6 +52,11 @@ func ReadFile(path string) [][]string {
 	defer file.Close()
 	csvReader := csv.NewReader(file)
 	records, err := csvReader.ReadAll()
+	for _, record := range records {
+		if len(record) != 4 {
+			log.Fatal("CSV file parsing error")
+		}
+	}
 	if err != nil {
 		log.Fatal(err)
 	}

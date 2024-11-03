@@ -1,10 +1,12 @@
 package server
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"triple-s/internal/config"
 	"triple-s/internal/handlers"
@@ -35,6 +37,12 @@ func StartServer() {
 		}
 	})
 	http.HandleFunc("/{BucketName}/{ObjectKey}", func(w http.ResponseWriter, r *http.Request) {
+		path := strings.Split(r.URL.Path[len("/"):], "/")
+		if len(path) != 2 {
+			u.CallErr(w, errors.New("invalid request"), 400)
+		} else if path[1] == "" {
+			u.CallErr(w, errors.New("invalid request"), 400)
+		}
 		switch r.Method {
 		case "PUT":
 			handlers.PutObject(w, r)

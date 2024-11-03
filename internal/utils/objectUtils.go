@@ -2,6 +2,7 @@ package utils
 
 import (
 	"encoding/csv"
+	"errors"
 	"log"
 	"os"
 	"path/filepath"
@@ -9,26 +10,6 @@ import (
 
 	"triple-s/internal/config"
 )
-
-func ReadObjectCsv(csvName string) []config.Object {
-	path := filepath.Join(*config.UserDir, "buckets.csv")
-	records := ReadFile(path)
-	records = records[1:]
-	var objectList []config.Object
-	for _, record := range records {
-		if len(record) != 4 {
-			log.Fatal("Wrong csv data")
-		}
-		object := config.Object{
-			Key:          record[0],
-			ContentType:  record[2],
-			LastModified: record[3],
-		}
-		object.Size, _ = strconv.Atoi(record[1])
-		objectList = append(objectList, object)
-	}
-	return objectList
-}
 
 func ChangeBucketCSVData(bucketName string) {
 	path := filepath.Join(*config.UserDir, "buckets.csv")
@@ -43,11 +24,9 @@ func ChangeBucketCSVData(bucketName string) {
 	csvWriter.Write(records[0])
 	records = records[1:]
 	for _, record := range records {
-		if len(record) != 4 {
-			log.Fatal("Wrong csv data")
-		}
 		if record[0] == bucketName {
 			record[2] = GetTime()
+			record[3] = "active"
 			csvWriter.Write(record)
 		} else {
 			csvWriter.Write(record)
@@ -55,7 +34,7 @@ func ChangeBucketCSVData(bucketName string) {
 	}
 }
 
-func UpdateCSVObject(bucketName string, objectKey string, size int, contType string) {
+func UpdateCSVObject(bucketName string, objectKey string, size int, contType string, addOrDel string) error {
 	path := filepath.Join(*config.UserDir, bucketName, "objects.csv")
 	records := ReadFile(path)
 	records = records[1:]
@@ -71,17 +50,37 @@ func UpdateCSVObject(bucketName string, objectKey string, size int, contType str
 	csvWriter.Write([]string{"ObjectKey", "Size", "ContentType", "LastModified"})
 
 	for _, record := range records {
-		if len(record) != 4 {
-			log.Fatal("Error")
-		}
 		if record[0] == objectKey {
-			csvWriter.Write([]string{objectKey, strconv.Itoa(size), contType, GetTime()})
+			if addOrDel == "add" {
+				csvWriter.Write([]string{objectKey, strconv.Itoa(size), contType, GetTime()})
+			}
 			changed = true
 		} else {
 			csvWriter.Write(record)
 		}
 	}
-	if !changed {
+	if !changed && addOrDel == "add" {
 		csvWriter.Write([]string{objectKey, strconv.Itoa(size), contType, GetTime()})
+		return nil
+	} else if !changed {
+		return errors.New("object not found")
 	}
+	return nil
+}
+
+func IsObjectPres(bucketName string, objectName string) (config.Object, bool) {
+	path := filepath.Join(*config.UserDir, bucketName, objectName)
+	records := ReadFile(path)
+	records = records[1:]
+	object := config.Object{}
+	for _, record := range records {
+		if record[0] == objectName {
+			object.Key = record[0]
+			object.Size, _ = strconv.Atoi(record[1])
+			object.ContentType = record[2]
+			object.LastModified = record[3]
+			return object, true
+		}
+	}
+	return object, false
 }
