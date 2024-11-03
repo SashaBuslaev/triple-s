@@ -86,6 +86,7 @@ func DeleteBucket(w http.ResponseWriter, r *http.Request) {
 	dir, _ := os.ReadDir(bucketDelete)
 	if len(dir) != 1 {
 		u.CallErr(w, errors.New("bucket is not empty"), 409)
+		return
 	}
 	path = filepath.Join(*config.UserDir, bucketDelete)
 	err := os.RemoveAll(path)

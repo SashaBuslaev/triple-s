@@ -19,7 +19,9 @@ func PutObject(w http.ResponseWriter, r *http.Request) {
 	path := strings.Split(r.URL.Path[len("/"):], "/")
 	bucketName, objectKey := path[0], path[1]
 	u.ValidBucket(w, bucketName)
-
+	if objectKey == "objects.csv" {
+		u.CallErr(w, errors.New("forbidden object name"), http.StatusBadRequest)
+	}
 	objectBody := r.Body
 	objectPath := filepath.Join(*config.UserDir, bucketName, objectKey)
 	file, err := os.Create(objectPath)

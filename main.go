@@ -1,9 +1,7 @@
 package main
 
-import (
-	fc "triple-s/internal/server"
-)
+import s "triple-s/internal/server"
 
 func main() {
-	fc.StartServer()
+	s.StartServer()
 }
