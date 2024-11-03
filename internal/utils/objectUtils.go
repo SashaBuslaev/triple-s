@@ -4,7 +4,9 @@ import (
 	"encoding/csv"
 	"log"
 	"os"
+	"path/filepath"
 	"strconv"
+
 	"triple-s/internal/config"
 )
 
@@ -27,14 +29,11 @@ func ReadObjectCsv(csvName string) []config.Object {
 }
 
 func ChangeBucketCSVData(bucketName string) {
-	file, err := os.OpenFile(*config.UserDir+"/buckets.csv", os.O_RDONLY, os.ModePerm)
-	defer file.Close()
+	records := ReadFile(*config.UserDir + "/buckets.csv")
+	file, err := os.OpenFile(*config.UserDir+"/buckets.csv", os.O_WRONLY|os.O_TRUNC, os.ModePerm)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("ERror")
 	}
-	csvReader := csv.NewReader(file)
-	records, err := csvReader.ReadAll()
-	file, err = os.OpenFile(*config.UserDir+"/buckets.csv", os.O_WRONLY|os.O_TRUNC, os.ModePerm)
 	defer file.Close()
 	csvWriter := csv.NewWriter(file)
 	defer csvWriter.Flush()
@@ -53,5 +52,27 @@ func ChangeBucketCSVData(bucketName string) {
 	}
 }
 
-func UpdateCSVObject(objectKey string) {
+func UpdateCSVObject(bucketName string, objectKey string, size int, contType string) {
+	path := filepath.Join(*config.UserDir, bucketName, "objects.csv")
+	records := ReadFile(path)
+	changed := false
+
+	file, err := os.OpenFile(path, os.O_WRONLY, os.ModeAppend)
+	defer file.Close()
+	csvWriter := csv.NewWriter(file)
+	defer csvWriter.Flush()
+	csvWriter.Write([]string{"ObjectKey", "Size", "ContentType", "LastModified"})
+
+	for _, record := range records {
+		if len(record) != 4 {
+			log.Fatal("Error")
+		}
+		if record[0] == objectKey {
+			csvWriter.Write([]string{objectKey, string(size), contType, GetTime()})
+		}
+	}
+
+	if err != nil {
+		log.Fatal("Error reading object CSV")
+	}
 }

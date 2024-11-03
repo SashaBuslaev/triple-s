@@ -67,6 +67,9 @@ func ReadCsvBucket(bucketName string) []config.Bucket {
 		log.Fatal(err)
 	}
 	for _, record := range records {
+		if len(record) != 4 {
+			log.Fatal("ReadCSVBucket")
+		}
 		bucket := config.Bucket{
 			Name:         record[0],
 			CreationTime: record[1],
