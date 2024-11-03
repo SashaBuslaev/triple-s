@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"time"
+
 	"triple-s/internal/config"
 )
 
@@ -27,7 +28,7 @@ func CallErr(w http.ResponseWriter, err error, code int) {
 		}
 		xmlData, _ := xml.MarshalIndent(errXML, "", "  ")
 		w.Write(xmlData)
-		return
+
 	}
 }
 

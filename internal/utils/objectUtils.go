@@ -3,10 +3,12 @@ package utils
 import (
 	"encoding/csv"
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 	"strconv"
+
 	"triple-s/internal/config"
 )
 
@@ -15,7 +17,7 @@ func ChangeBucketCSVData(bucketName string) {
 	records := ReadFile(path)
 	file, err := os.OpenFile(path, os.O_WRONLY|os.O_TRUNC, os.ModePerm)
 	if err != nil {
-		log.Fatal("ERror")
+		log.Fatal("Error")
 	}
 	defer file.Close()
 	csvWriter := csv.NewWriter(file)
@@ -39,7 +41,7 @@ func UpdateCSVObject(bucketName string, objectKey string, size int, contType str
 	records = records[1:]
 	changed := false
 
-	file, err := os.OpenFile(path, os.O_WRONLY, os.ModeAppend)
+	file, err := os.OpenFile(path, os.O_WRONLY|os.O_TRUNC, os.ModePerm)
 	if err != nil {
 		log.Fatal("Error reading object CSV")
 	}
@@ -55,6 +57,7 @@ func UpdateCSVObject(bucketName string, objectKey string, size int, contType str
 			}
 			changed = true
 		} else {
+			fmt.Println(1)
 			csvWriter.Write(record)
 		}
 	}
@@ -64,6 +67,7 @@ func UpdateCSVObject(bucketName string, objectKey string, size int, contType str
 	} else if !changed {
 		return errors.New("object not found")
 	}
+
 	return nil
 }
 

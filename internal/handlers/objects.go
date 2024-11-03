@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
 	"triple-s/internal/config"
 
 	u "triple-s/internal/utils"
@@ -77,11 +78,10 @@ func DeleteObject(w http.ResponseWriter, r *http.Request) {
 	u.ValidBucket(w, bucketName)
 
 	isPres := u.UpdateCSVObject(bucketName, objectKey, 0, "", "del")
-	if isPres != nil {
-		u.CallErr(w, isPres, 404)
-		return
-	}
+	u.CallErr(w, isPres, 404)
+
 	err := os.Remove(pathToObj)
 	u.CallErr(w, err, 404)
 	w.WriteHeader(http.StatusNoContent)
+	u.ChangeBucketCSVData(bucketName)
 }
