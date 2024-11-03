@@ -8,7 +8,6 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-
 	"triple-s/internal/config"
 )
 
@@ -75,7 +74,6 @@ func IsObjectPres(bucketName string, objectName string) (config.Object, bool) {
 	path := filepath.Join(*config.UserDir, bucketName, "objects.csv")
 
 	records := ReadFile(path)
-
 	records = records[1:]
 	object := config.Object{}
 	for _, record := range records {
