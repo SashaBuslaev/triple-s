@@ -18,23 +18,21 @@ const MaxSize int64 = 102400000
 func PutObject(w http.ResponseWriter, r *http.Request) {
 	path := strings.Split(r.URL.Path[len("/"):], "/")
 	bucketName, objectKey := path[0], path[1]
-	if !u.IsValidBucketName(bucketName) {
-		u.CallErr(w, errors.New("invalid bucket name"), 400)
-	}
-	if u.IsUniqueBucketName(bucketName) {
-		u.CallErr(w, errors.New("bucket does not exist"), 404)
-	}
+	u.ValidBucket(w, bucketName)
+
 	objectBody := r.Body
 	objectPath := filepath.Join(*config.UserDir, bucketName, objectKey)
 	file, err := os.Create(objectPath)
 	u.CallErr(w, err, 409)
 	defer file.Close()
+
 	_, err = io.Copy(file, objectBody)
 	u.CallErr(w, err, 500)
 	if r.ContentLength >= MaxSize {
 		u.CallErr(w, errors.New("max limit reached, upgrade your subscription plan to get more than 100 mb"), 400)
 	}
 	r.Body = http.MaxBytesReader(w, r.Body, MaxSize) // if misleading file length
+
 	object := config.Object{
 		Key:          objectKey,
 		Size:         int(r.ContentLength),
@@ -54,12 +52,7 @@ func PutObject(w http.ResponseWriter, r *http.Request) {
 func GetObject(w http.ResponseWriter, r *http.Request) {
 	path := strings.Split(r.URL.Path[len("/"):], "/")
 	bucketName, objectKey := path[0], path[1]
-	if !u.IsValidBucketName(bucketName) {
-		u.CallErr(w, errors.New("invalid bucket name"), 400)
-	}
-	if u.IsUniqueBucketName(bucketName) {
-		u.CallErr(w, errors.New("bucket does not exist"), 404)
-	}
+	u.ValidBucket(w, bucketName)
 
 	object, isPres := u.IsObjectPres(bucketName, objectKey)
 
@@ -73,4 +66,20 @@ func GetObject(w http.ResponseWriter, r *http.Request) {
 	u.CallErr(w, err, 500)
 	w.Write(objectBody)
 	w.WriteHeader(http.StatusOK)
+}
+
+func DeleteObject(w http.ResponseWriter, r *http.Request) {
+	path := strings.Split(r.URL.Path[len("/"):], "/")
+	bucketName, objectKey := path[0], path[1]
+	pathToObj := filepath.Join(*config.UserDir, bucketName, objectKey)
+	u.ValidBucket(w, bucketName)
+
+	isPres := u.UpdateCSVObject(bucketName, objectKey, 0, "", "del")
+	if isPres != nil {
+		u.CallErr(w, isPres, 404)
+		return
+	}
+	err := os.Remove(pathToObj)
+	u.CallErr(w, err, 404)
+	w.WriteHeader(http.StatusNoContent)
 }

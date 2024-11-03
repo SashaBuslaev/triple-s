@@ -3,6 +3,7 @@ package utils
 import (
 	"encoding/csv"
 	"encoding/xml"
+	"errors"
 	"log"
 	"net/http"
 	"os"
@@ -69,4 +70,13 @@ func GetXML(thing interface{}) []byte {
 		log.Fatal(err)
 	}
 	return xmlData
+}
+
+func ValidBucket(w http.ResponseWriter, bucketName string) {
+	if !IsValidBucketName(bucketName) {
+		CallErr(w, errors.New("invalid bucket name"), 400)
+	}
+	if IsUniqueBucketName(bucketName) {
+		CallErr(w, errors.New("bucket does not exist"), 404)
+	}
 }

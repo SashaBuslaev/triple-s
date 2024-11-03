@@ -48,6 +48,8 @@ func StartServer() {
 			handlers.PutObject(w, r)
 		case "GET":
 			handlers.GetObject(w, r)
+		case "DELETE":
+			handlers.DeleteObject(w, r)
 		default:
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
