@@ -19,3 +19,10 @@ type ErrorResponse struct {
 	Code    int      `xml:"Code"`
 	Message string   `xml:"Message"`
 }
+
+type Object struct {
+	Key          string `xml:"Name"`
+	Size         int    `xml:"Size in bytes"`
+	ContentType  string `xml:"Type"`
+	LastModified string `xml:"LastModified"`
+}

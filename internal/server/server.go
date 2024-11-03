@@ -32,14 +32,14 @@ func StartServer() {
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
 	})
-	http.HandleFunc("/{BucketName}/{ObjectName}", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/{BucketName}/{ObjectKey}", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "PUT":
-			handles.PutObject(w, r) 
+			// handlers.PutObject(w, r)
 		default:
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
-	}))
+	})
 
 	fmt.Println("Server listening on port", *config.PortNum)
 	PortNumStr := ":" + strconv.Itoa(*config.PortNum)

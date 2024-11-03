@@ -42,3 +42,18 @@ func CreateCSVHead(header []string, path string) {
 		log.Fatal(err)
 	}
 }
+
+func ReadFile(path string) [][]string {
+	file, err := os.OpenFile(path, os.O_RDONLY, os.ModePerm)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+	csvReader := csv.NewReader(file)
+	records, err := csvReader.ReadAll()
+	if err != nil {
+		log.Fatal(err)
+	}
+	records = records[1:]
+	return records
+}

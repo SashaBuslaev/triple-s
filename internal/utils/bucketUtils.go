@@ -8,7 +8,6 @@ import (
 	"os"
 	"regexp"
 	"strings"
-
 	"triple-s/internal/config"
 )
 
@@ -95,14 +94,11 @@ func UpdateCsvBucket(bucketName string, addOrDel string, delBucket string) {
 			log.Fatal(err)
 		}
 	} else if addOrDel == "del" {
-		file, err := os.OpenFile(*config.UserDir+"/buckets.csv", os.O_RDONLY, os.ModePerm)
-		defer file.Close()
+		records := ReadFile(*config.UserDir + "/buckets.csv")
+		file, err := os.OpenFile(*config.UserDir+"/buckets.csv", os.O_WRONLY|os.O_TRUNC, os.ModePerm)
 		if err != nil {
 			log.Fatal(err)
 		}
-		csvReader := csv.NewReader(file)
-		records, err := csvReader.ReadAll()
-		file, err = os.OpenFile(*config.UserDir+"/buckets.csv", os.O_WRONLY|os.O_TRUNC, os.ModePerm)
 		defer file.Close()
 		csvWriter := csv.NewWriter(file)
 		defer csvWriter.Flush()
