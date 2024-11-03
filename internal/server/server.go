@@ -46,6 +46,8 @@ func StartServer() {
 		switch r.Method {
 		case "PUT":
 			handlers.PutObject(w, r)
+		case "GET":
+			handlers.GetObject(w, r)
 		default:
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}

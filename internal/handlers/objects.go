@@ -60,8 +60,17 @@ func GetObject(w http.ResponseWriter, r *http.Request) {
 	if u.IsUniqueBucketName(bucketName) {
 		u.CallErr(w, errors.New("bucket does not exist"), 404)
 	}
-	if !u.IsObjectPres(bucketName, objectKey) {
+
+	object, isPres := u.IsObjectPres(bucketName, objectKey)
+
+	if !isPres {
 		u.CallErr(w, errors.New("object not found"), 404)
+		return
 	}
-	w.Header().Set("Content-Type", r.)
+
+	w.Header().Set("Content-Type", object.ContentType)
+	objectBody, err := io.ReadAll(r.Body)
+	u.CallErr(w, err, 500)
+	w.Write(objectBody)
+	w.WriteHeader(http.StatusOK)
 }
