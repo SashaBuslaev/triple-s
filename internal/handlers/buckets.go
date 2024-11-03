@@ -17,17 +17,17 @@ func CreateBucket(w http.ResponseWriter, r *http.Request) {
 	bucketName := r.URL.Path[len("/"):]
 
 	if !u.IsValidBucketName(bucketName) {
-		u.CallErr(w, errors.New("Invalid bucket name"), 400)
+		u.CallErr(w, errors.New("invalid bucket name"), 400)
 		return
 	}
 	if !u.IsUniqueBucketName(bucketName) {
-		u.CallErr(w, errors.New("Bucket already exists"), 409)
+		u.CallErr(w, errors.New("bucket already exists"), 409)
 		return
 	}
 	path := filepath.Join(*config.UserDir, bucketName)
 	err := os.Mkdir(path, 0o777)
 	u.CallErr(w, err, 500)
-	objCSVpath := filepath.Join(path, "object.csv")
+	objCSVpath := filepath.Join(path, "objects.csv")
 	u.CreateCSVHead([]string{"ObjectKey", "Size", "ContentType", "LastModified"}, objCSVpath)
 
 	u.UpdateCsvBucket(bucketName, "add", "")
@@ -68,7 +68,7 @@ func ListBuckets(w http.ResponseWriter, r *http.Request) {
 func DeleteBucket(w http.ResponseWriter, r *http.Request) {
 	bucketDelete := r.URL.Path[len("/"):]
 	if !u.IsValidBucketName(bucketDelete) {
-		u.CallErr(w, errors.New("Invalid bucket name"), 400)
+		u.CallErr(w, errors.New("invalid bucket name"), 400)
 	}
 	path := filepath.Join(*config.UserDir, "buckets.csv")
 	records := u.ReadCsvBucket(path)
@@ -81,11 +81,11 @@ func DeleteBucket(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if !bucketIs {
-		u.CallErr(w, errors.New("Bucket does not exist"), 404)
+		u.CallErr(w, errors.New("bucket does not exist"), 404)
 	}
 	dir, _ := os.ReadDir(bucketDelete)
 	if len(dir) != 1 {
-		u.CallErr(w, errors.New("Bucket is not empty"), 409)
+		u.CallErr(w, errors.New("bucket is not empty"), 409)
 	}
 	path = filepath.Join(*config.UserDir, bucketDelete)
 	err := os.RemoveAll(path)

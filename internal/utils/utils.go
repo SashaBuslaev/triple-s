@@ -55,7 +55,6 @@ func ReadFile(path string) [][]string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	records = records[1:]
 	return records
 }
 

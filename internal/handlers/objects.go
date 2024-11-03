@@ -32,19 +32,21 @@ func PutObject(w http.ResponseWriter, r *http.Request) {
 	objectBody := r.Body
 	objectPath := filepath.Join(*config.UserDir, bucketName, objectKey)
 	file, err := os.Create(objectPath)
-	defer file
 	u.CallErr(w, err, 409)
+	defer file.Close()
 	_, err = io.Copy(file, objectBody)
 	u.CallErr(w, err, 500)
 	r.Body = http.MaxBytesReader(w, r.Body, MaxSize)
-	err = r.ParseMultipartForm(MaxSize)
+	if r.ContentLength >= MaxSize {
+		u.CallErr(w, errors.New("max limit reached, upgrade your subscription plan to get more than 100 mb"), 400)
+	}
 	object := config.Object{
 		Key:          objectKey,
 		Size:         int(r.ContentLength),
 		ContentType:  r.Header.Get("Content-Type"),
 		LastModified: u.GetTime(),
 	}
-	u.CallErr(w, err, 400)
+
 	u.ChangeBucketCSVData(bucketName)
 	u.UpdateCSVObject(bucketName, object.Key, object.Size, object.ContentType)
 	objectXML := u.GetXML(object)

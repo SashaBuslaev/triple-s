@@ -13,6 +13,7 @@ import (
 func ReadObjectCsv(csvName string) []config.Object {
 	path := filepath.Join(*config.UserDir, "buckets.csv")
 	records := ReadFile(path)
+	records = records[1:]
 	var objectList []config.Object
 	for _, record := range records {
 		if len(record) != 4 {
@@ -57,6 +58,7 @@ func ChangeBucketCSVData(bucketName string) {
 func UpdateCSVObject(bucketName string, objectKey string, size int, contType string) {
 	path := filepath.Join(*config.UserDir, bucketName, "objects.csv")
 	records := ReadFile(path)
+	records = records[1:]
 	changed := false
 
 	file, err := os.OpenFile(path, os.O_WRONLY, os.ModeAppend)
