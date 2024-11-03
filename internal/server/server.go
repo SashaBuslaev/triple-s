@@ -5,8 +5,10 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+
 	"triple-s/internal/config"
 	"triple-s/internal/handlers"
+
 	u "triple-s/internal/utils"
 )
 
@@ -35,7 +37,7 @@ func StartServer() {
 	http.HandleFunc("/{BucketName}/{ObjectKey}", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case "PUT":
-			// handlers.PutObject(w, r)
+			handlers.PutObject(w, r)
 		default:
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}

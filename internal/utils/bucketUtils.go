@@ -2,12 +2,13 @@ package utils
 
 import (
 	"encoding/csv"
-	"encoding/xml"
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
+
 	"triple-s/internal/config"
 )
 
@@ -39,7 +40,8 @@ func IsValidBucketName(name string) bool {
 }
 
 func IsUniqueBucketName(name string) bool {
-	records := ReadCsvBucket(*config.UserDir + "/buckets.csv")
+	path := filepath.Join(*config.UserDir, "buckets.csv")
+	records := ReadCsvBucket(path)
 	for _, record := range records {
 		fmt.Println(record)
 		if record.Name == name {
@@ -83,7 +85,8 @@ func ReadCsvBucket(bucketName string) []config.Bucket {
 
 func UpdateCsvBucket(bucketName string, addOrDel string, delBucket string) {
 	if addOrDel == "add" {
-		file, err := os.OpenFile(*config.UserDir+"/buckets.csv", os.O_APPEND|os.O_WRONLY, os.ModePerm)
+		path := filepath.Join(*config.UserDir, "buckets.csv")
+		file, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY, os.ModePerm)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -97,8 +100,9 @@ func UpdateCsvBucket(bucketName string, addOrDel string, delBucket string) {
 			log.Fatal(err)
 		}
 	} else if addOrDel == "del" {
-		records := ReadFile(*config.UserDir + "/buckets.csv")
-		file, err := os.OpenFile(*config.UserDir+"/buckets.csv", os.O_WRONLY|os.O_TRUNC, os.ModePerm)
+		path := filepath.Join(*config.UserDir, "buckets.csv")
+		records := ReadFile(path)
+		file, err := os.OpenFile(path, os.O_WRONLY|os.O_TRUNC, os.ModePerm)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -113,18 +117,4 @@ func UpdateCsvBucket(bucketName string, addOrDel string, delBucket string) {
 			}
 		}
 	}
-}
-
-func GetXMLBucket(bucketName string, creationTime string, modTime string, status string) []byte {
-	bucket := config.Bucket{
-		Name:         bucketName,
-		CreationTime: creationTime,
-		LastModified: modTime,
-		Status:       status,
-	}
-	xmlData, err := xml.MarshalIndent(bucket, "", "	") // to make the text version prettier
-	if err != nil {
-		log.Fatal(err)
-	}
-	return xmlData
 }

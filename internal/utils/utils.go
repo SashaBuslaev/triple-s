@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"time"
+
 	"triple-s/internal/config"
 )
 
@@ -56,4 +57,12 @@ func ReadFile(path string) [][]string {
 	}
 	records = records[1:]
 	return records
+}
+
+func GetXML(thing interface{}) []byte {
+	xmlData, err := xml.MarshalIndent(thing, "", "	") // to make the text version prettier
+	if err != nil {
+		log.Fatal(err)
+	}
+	return xmlData
 }

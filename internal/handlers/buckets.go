@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"path"
+	"path/filepath"
+
 	"triple-s/internal/config"
+
 	u "triple-s/internal/utils"
 )
 
@@ -22,26 +24,34 @@ func CreateBucket(w http.ResponseWriter, r *http.Request) {
 		u.CallErr(w, errors.New("Bucket already exists"), 409)
 		return
 	}
-
-	err := os.Mkdir(*config.UserDir+"/"+bucketName, 0o777)
+	path := filepath.Join(*config.UserDir, bucketName)
+	err := os.Mkdir(path, 0o777)
 	u.CallErr(w, err, 500)
-	objCSVpath := path.Join(*config.UserDir+"/"+bucketName, "object.csv")
+	objCSVpath := filepath.Join(path, "object.csv")
 	u.CreateCSVHead([]string{"ObjectKey", "Size", "ContentType", "LastModified"}, objCSVpath)
 
 	u.UpdateCsvBucket(bucketName, "add", "")
 	fmt.Println("Bucket created successfully:", bucketName)
 
-	bucket := u.GetXMLBucket(bucketName, u.GetTime(), u.GetTime(), "active")
+	bucket := config.Bucket{
+		Name:         bucketName,
+		CreationTime: u.GetTime(),
+		LastModified: u.GetTime(),
+		Status:       "inactive",
+	}
+
+	bucketXML := u.GetXML(bucket)
 	w.Header().Set("Content-Type", "application/xml")
 	_, err = w.Write([]byte(xml.Header))
 	u.CallErr(w, err, 500)
-	_, err = w.Write(bucket)
+	_, err = w.Write(bucketXML)
 	u.CallErr(w, err, 500)
 	w.WriteHeader(http.StatusOK)
 }
 
 func ListBuckets(w http.ResponseWriter, r *http.Request) {
-	records := u.ReadCsvBucket(*config.UserDir + "/buckets.csv")
+	path := filepath.Join(*config.UserDir, "buckets.csv")
+	records := u.ReadCsvBucket(path)
 	w.Header().Set("Content-Type", "application/xml")
 	_, err := w.Write([]byte(xml.Header))
 	u.CallErr(w, err, 500)
@@ -60,7 +70,8 @@ func DeleteBucket(w http.ResponseWriter, r *http.Request) {
 	if !u.IsValidBucketName(bucketDelete) {
 		u.CallErr(w, errors.New("Invalid bucket name"), 400)
 	}
-	records := u.ReadCsvBucket(*config.UserDir + "/buckets.csv")
+	path := filepath.Join(*config.UserDir, "buckets.csv")
+	records := u.ReadCsvBucket(path)
 	w.Header().Set("Content-Type", "application/xml")
 	bucketIs := false
 	for _, bucketName := range records {
@@ -76,7 +87,8 @@ func DeleteBucket(w http.ResponseWriter, r *http.Request) {
 	if len(dir) != 1 {
 		u.CallErr(w, errors.New("Bucket is not empty"), 409)
 	}
-	err := os.RemoveAll(*config.UserDir + "/" + bucketDelete)
+	path = filepath.Join(*config.UserDir, bucketDelete)
+	err := os.RemoveAll(path)
 	u.CallErr(w, err, 500)
 	u.UpdateCsvBucket(bucketDelete, "del", bucketDelete)
 	w.WriteHeader(http.StatusNoContent)
