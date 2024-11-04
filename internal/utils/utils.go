@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"time"
+
 	"triple-s/internal/config"
 )
 
@@ -27,7 +28,6 @@ func CallErr(w http.ResponseWriter, err error, code int) {
 		}
 		xmlData, _ := xml.MarshalIndent(errXML, "", "  ")
 		w.Write(xmlData)
-
 	}
 }
 
@@ -74,8 +74,10 @@ func GetXML(thing interface{}) []byte {
 func ValidBucket(w http.ResponseWriter, bucketName string) {
 	if !IsValidBucketName(bucketName) {
 		CallErr(w, errors.New("invalid bucket name"), 400)
+		return
 	}
 	if IsUniqueBucketName(bucketName) {
 		CallErr(w, errors.New("bucket does not exist"), 404)
+		return
 	}
 }

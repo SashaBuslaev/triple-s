@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
 	"triple-s/internal/config"
 
 	u "triple-s/internal/utils"
@@ -18,6 +19,7 @@ func PutObject(w http.ResponseWriter, r *http.Request) {
 	path := strings.Split(r.URL.Path[len("/"):], "/")
 	bucketName, objectKey := path[0], path[1]
 	u.ValidBucket(w, bucketName)
+	
 	if objectKey == "objects.csv" {
 		u.CallErr(w, errors.New("forbidden object name"), http.StatusBadRequest)
 		return

@@ -2,12 +2,12 @@ package utils
 
 import (
 	"encoding/csv"
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+
 	"triple-s/internal/config"
 )
 
@@ -42,7 +42,6 @@ func IsUniqueBucketName(name string) bool {
 	path := filepath.Join(*config.UserDir, "buckets.csv")
 	records := ReadCsvBucket(path)
 	for _, record := range records {
-		fmt.Println(record)
 		if record.Name == name {
 			return false
 		}
