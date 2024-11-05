@@ -22,7 +22,6 @@ func CreateDirAndCSV() {
 		}
 	}
 	if !IsExist(*config.UserDir) {
-		fmt.Println(123)
 		err := os.Mkdir(*config.UserDir, 0o777)
 		if err != nil {
 			fmt.Println(err)

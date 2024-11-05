@@ -3,11 +3,11 @@ package utils
 import (
 	"encoding/csv"
 	"errors"
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 	"strconv"
+
 	"triple-s/internal/config"
 )
 
@@ -39,7 +39,6 @@ func UpdateCSVObject(bucketName string, objectKey string, size int, contType str
 	records := ReadFile(path)
 	records = records[1:]
 	changed := false
-
 	file, err := os.OpenFile(path, os.O_WRONLY|os.O_TRUNC, os.ModePerm)
 	if err != nil {
 		log.Fatal("Error reading object CSV")
@@ -56,7 +55,6 @@ func UpdateCSVObject(bucketName string, objectKey string, size int, contType str
 			}
 			changed = true
 		} else {
-			fmt.Println(1)
 			csvWriter.Write(record)
 		}
 	}

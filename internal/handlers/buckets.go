@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+
 	"triple-s/internal/config"
 
 	u "triple-s/internal/utils"
@@ -45,7 +46,7 @@ func CreateBucket(w http.ResponseWriter, r *http.Request) {
 	u.CallErr(w, err, 500)
 	_, err = w.Write(bucketXML)
 	u.CallErr(w, err, 500)
-	w.WriteHeader(http.StatusOK)
+	// w.WriteHeader(http.StatusOK)
 }
 
 func ListBuckets(w http.ResponseWriter, r *http.Request) {
@@ -61,7 +62,7 @@ func ListBuckets(w http.ResponseWriter, r *http.Request) {
 	u.CallErr(w, err, 500)
 	_, err = w.Write(xmlData)
 	u.CallErr(w, err, 500)
-	w.WriteHeader(http.StatusOK)
+	// w.WriteHeader(http.StatusOK)
 }
 
 func DeleteBucket(w http.ResponseWriter, r *http.Request) {

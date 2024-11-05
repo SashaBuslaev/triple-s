@@ -71,13 +71,14 @@ func GetXML(thing interface{}) []byte {
 	return xmlData
 }
 
-func ValidBucket(w http.ResponseWriter, bucketName string) {
+func IsValidBucket(w http.ResponseWriter, bucketName string) bool {
 	if !IsValidBucketName(bucketName) {
 		CallErr(w, errors.New("invalid bucket name"), 400)
-		return
+		return false
 	}
 	if IsUniqueBucketName(bucketName) {
 		CallErr(w, errors.New("bucket does not exist"), 404)
-		return
+		return false
 	}
+	return true
 }

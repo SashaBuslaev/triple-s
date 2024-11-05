@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -18,8 +19,10 @@ const MaxSize int64 = 102400000
 func PutObject(w http.ResponseWriter, r *http.Request) {
 	path := strings.Split(r.URL.Path[len("/"):], "/")
 	bucketName, objectKey := path[0], path[1]
-	u.ValidBucket(w, bucketName)
-	
+	if !u.IsValidBucket(w, bucketName) {
+		return
+	}
+	fmt.Println("haha")
 	if objectKey == "objects.csv" {
 		u.CallErr(w, errors.New("forbidden object name"), http.StatusBadRequest)
 		return
@@ -50,13 +53,15 @@ func PutObject(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/xml")
 	_, err = w.Write(objectXML)
 	u.CallErr(w, err, 500)
-	w.WriteHeader(http.StatusOK)
+	// w.WriteHeader(http.StatusOK)
 }
 
 func GetObject(w http.ResponseWriter, r *http.Request) {
 	path := strings.Split(r.URL.Path[len("/"):], "/")
 	bucketName, objectKey := path[0], path[1]
-	u.ValidBucket(w, bucketName)
+	if !u.IsValidBucket(w, bucketName) {
+		return
+	}
 
 	object, isPres := u.IsObjectPres(bucketName, objectKey)
 
@@ -69,14 +74,16 @@ func GetObject(w http.ResponseWriter, r *http.Request) {
 	objectBody, err := io.ReadAll(r.Body)
 	u.CallErr(w, err, 500)
 	w.Write(objectBody)
-	w.WriteHeader(http.StatusOK)
+	// w.WriteHeader(http.StatusOK)
 }
 
 func DeleteObject(w http.ResponseWriter, r *http.Request) {
 	path := strings.Split(r.URL.Path[len("/"):], "/")
 	bucketName, objectKey := path[0], path[1]
 	pathToObj := filepath.Join(*config.UserDir, bucketName, objectKey)
-	u.ValidBucket(w, bucketName)
+	if !u.IsValidBucket(w, bucketName) {
+		return
+	}
 
 	isPres := u.UpdateCSVObject(bucketName, objectKey, 0, "", "del")
 	u.CallErr(w, isPres, 404)
