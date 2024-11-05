@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-
 	"triple-s/internal/config"
 
 	u "triple-s/internal/utils"
@@ -97,8 +96,10 @@ func DeleteBucket(w http.ResponseWriter, r *http.Request) {
 		u.CallErr(w, errors.New("bucket does not exist"), 404)
 		return
 	}
-	dir, _ := os.ReadDir(bucketDelete)
+	path = filepath.Join(*config.UserDir, bucketDelete)
+	dir, _ := os.ReadDir(path)
 	if len(dir) != 1 {
+		fmt.Println(len(dir))
 		u.CallErr(w, errors.New("bucket is not empty"), 409)
 		return
 	}
