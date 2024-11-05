@@ -30,13 +30,18 @@ func PutObject(w http.ResponseWriter, r *http.Request) {
 	objectBody := r.Body
 	objectPath := filepath.Join(*config.UserDir, bucketName, objectKey)
 	file, err := os.Create(objectPath)
-	u.CallErr(w, err, 409)
+	if u.CallErr(w, err, 409) {
+		return
+	}
 	defer file.Close()
 
 	_, err = io.Copy(file, objectBody)
-	u.CallErr(w, err, 500)
+	if u.CallErr(w, err, 500) {
+		return
+	}
 	if r.ContentLength >= MaxSize {
 		u.CallErr(w, errors.New("max limit reached, upgrade your subscription plan to get more than 100 mb"), 400)
+		return
 	}
 	r.Body = http.MaxBytesReader(w, r.Body, MaxSize) // if misleading file length
 
@@ -52,7 +57,9 @@ func PutObject(w http.ResponseWriter, r *http.Request) {
 	objectXML := u.GetXML(object)
 	w.Header().Set("Content-Type", "application/xml")
 	_, err = w.Write(objectXML)
-	u.CallErr(w, err, 500)
+	if u.CallErr(w, err, 500) {
+		return
+	}
 	// w.WriteHeader(http.StatusOK)
 }
 
@@ -72,7 +79,9 @@ func GetObject(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", object.ContentType)
 	objectBody, err := io.ReadAll(r.Body)
-	u.CallErr(w, err, 500)
+	if u.CallErr(w, err, 500) {
+		return
+	}
 	w.Write(objectBody)
 	// w.WriteHeader(http.StatusOK)
 }
@@ -86,10 +95,14 @@ func DeleteObject(w http.ResponseWriter, r *http.Request) {
 	}
 
 	isPres := u.UpdateCSVObject(bucketName, objectKey, 0, "", "del")
-	u.CallErr(w, isPres, 404)
+	if u.CallErr(w, isPres, 404) {
+		return
+	}
 
 	err := os.Remove(pathToObj)
-	u.CallErr(w, err, 404)
+	if u.CallErr(w, err, 404) {
+		return
+	}
 	w.WriteHeader(http.StatusNoContent)
 	u.ChangeBucketCSVData(bucketName)
 }

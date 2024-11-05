@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+
 	"triple-s/internal/config"
 	"triple-s/internal/handlers"
 
@@ -39,8 +40,10 @@ func StartServer() {
 		path := strings.Split(r.URL.Path[len("/"):], "/")
 		if len(path) != 2 {
 			u.CallErr(w, errors.New("invalid request"), 400)
+			return
 		} else if path[1] == "" {
 			u.CallErr(w, errors.New("invalid request"), 400)
+			return
 		}
 		switch r.Method {
 		case "PUT":

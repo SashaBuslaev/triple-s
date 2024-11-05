@@ -18,7 +18,7 @@ func GetTime() string {
 	return format
 }
 
-func CallErr(w http.ResponseWriter, err error, code int) {
+func CallErr(w http.ResponseWriter, err error, code int) bool {
 	if err != nil {
 		w.Header().Set("Content-Type", "application/xml")
 		w.WriteHeader(code)
@@ -28,7 +28,9 @@ func CallErr(w http.ResponseWriter, err error, code int) {
 		}
 		xmlData, _ := xml.MarshalIndent(errXML, "", "  ")
 		w.Write(xmlData)
+		return true
 	}
+	return false
 }
 
 func CreateCSVHead(header []string, path string) {
