@@ -2,9 +2,8 @@ $ ./triple-s --help
 Simple Storage Service.
 
 **Usage:**
-    triple-s [-port <N>] [-dir <S>]  
-    triple-s --help
-
+    triple-s [-port <N>] [-dir <S>]   
+  
 **Options:**
 - --help     Show this screen.
 - --port N   Port number
