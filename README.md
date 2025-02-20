@@ -6,6 +6,6 @@ Simple Storage Service.
     triple-s --help
 
 **Options:**
- help     Show this screen.
- port N   Port number
- dir S    Path to the directory
+- --help     Show this screen.
+- --port N   Port number
+- --dir S    Path to the directory
